@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Comic Details</h1>
+
+<div class="card">
+  <div class="card-content">
+    <span class="card-title">{{ comic.name }}</span>
+    <p>Publisher: {{ comic.publisher }}</p>
+    <p>Description: {{ cat.description }}</p>
+    {% if comic.year > 0 %}
+      <p>Year: {{ comic.year }}</p>
+    {% else %}
+      <p>Year: New</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
