@@ -30,26 +30,36 @@
     </form>
     <br>
     {% if comic.read_for_today %}
-      <div class="card-panel teal-text center-align">{{comic.name}} has been read today</div>
+    <div class="card-panel teal-text center-align">{{comic.name}} has been read today</div>
     {% else %}
       <div class="card-panel red-text center-align">{{comic.name}} might need to be read</div>
-    {% endif %}
-    <table class="striped">
-      <thead>
-        <tr><th>Date</th><th>Read</th></tr>
+      {% endif %}
+      <table class="striped">
+        <thead>
+          <tr><th>Date</th><th>Read</th></tr>
       </thead>
       <tbody>
         {% for reading in comic.reading_set.all %}
-          <tr>
-            <td>{{reading.date}}</td>
+        <tr>
+          <td>{{reading.date}}</td>
             <td>{{reading.get_read_display}}</td>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
-
+  {% for photo in comic.photo_set.all %}
+    <img class="responsive-img card-panel" src="{{photo.url}}">
+  {% empty %}
+    <div class="card-panel teal-text center-align">No Photos Uploaded</div>
+  {% endfor %}
+  <form action="{% url 'add_photo' comic.id %}" enctype="multipart/form-data" method="POST" class="card-panel">
+    {% csrf_token %}
+    <input type="file" name="photo-file">
+    <br><br>
+    <input type="submit" class="btn" value="Upload Photo">
+  </form>
 <hr>
 <div class="row">
   <div class="col s6">
@@ -62,10 +72,16 @@
               {{ genre.name }}
             </span>
           </div>
+          <div class="card-action">
+            <form action="{% url 'unassoc_genre' comic.id genre.id %}" method="post">
+                {% csrf_token %}
+              <button type="submit" class="btn">Remove</button>
+            </form>
+          </div>
         </div>
       {% endfor %}
     {% else %}
-      <h5>No Genres :(</h5>
+    <h5>No Genres :(</h5>
     {% endif %}
   </div>
   <!-- Available genres will come after this line -->

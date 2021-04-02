@@ -4,9 +4,14 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
-from .models import Comic, Genre
+import uuid
+import boto3
+from .models import Comic, Genre, Photo
 from .forms import ReadingForm
 from django.contrib.auth import login
+
+S3_BASE_URL = 'https://s3-us-east-2.amazonaws.com/'
+BUCKET = 'catcollector187'
 
 # Create your views here.
 
@@ -37,8 +42,14 @@ def add_reading(request, comic_id):
     new_reading.save()
   return redirect('detail', comic_id=comic_id)
 
+@login_required
 def assoc_genre(request, comic_id, genre_id):
   Comic.objects.get(id=comic_id).genres.add(genre_id)
+  return redirect('detail', comic_id=comic_id)
+
+@login_required
+def unassoc_genre(request, comic_id, genre_id):
+  Comic.objects.get(id=comic_id).genres.remove(genre_id)
   return redirect('detail', comic_id=comic_id)
 
 class ComicUpdate(LoginRequiredMixin, UpdateView):
@@ -72,6 +83,20 @@ def signup(request):
   form = UserCreationForm()
   context = {'form': form, 'error_message': error_message}
   return render(request, 'registration/signup.html', context)
+
+@login_required
+def add_photo(request, comic_id):
+    photo_file = request.FILES.get('photo-file', None)
+    if photo_file:
+        s3 = boto3.client('s3')
+        key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
+        try:
+            s3.upload_fileobj(photo_file, BUCKET, key)
+            url = f"{S3_BASE_URL}{BUCKET}/{key}"
+            Photo.objects.create(url=url, comic_id=comic_id)
+        except:
+            print('An error occurred uploading file to S3')
+    return redirect('detail', comic_id=comic_id)
 
 class GenreList(LoginRequiredMixin, ListView):
   model = Genre

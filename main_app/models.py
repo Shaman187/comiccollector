@@ -6,8 +6,9 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 READINGS = (
-    ('Y', 'Yeah'),
-    ('N', 'Nah')
+    ('M', 'Morning'),
+    ('A', 'Afternoon'),
+    ('N', 'Night')
 )
 
 class Genre(models.Model):
@@ -36,6 +37,13 @@ class Comic(models.Model):
 
     def read_for_today(self):
         return self.reading_set.filter(date=date.today()).count() >= len(READINGS)
+        
+class Photo(models.Model):
+    url = models.CharField(max_length=200)
+    cat = models.ForeignKey(Comic, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Photo for comic_id: {self.comic_id} @{self.url}"
 
 class Reading(models.Model):
     date = models.DateField('read date')
