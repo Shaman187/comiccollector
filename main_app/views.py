@@ -93,6 +93,7 @@ def add_photo(request, comic_id):
         try:
             s3.upload_fileobj(photo_file, BUCKET, key)
             url = f"{S3_BASE_URL}{BUCKET}/{key}"
+            print(url)
             Photo.objects.create(url=url, comic_id=comic_id)
         except:
             print('An error occurred uploading file to S3')

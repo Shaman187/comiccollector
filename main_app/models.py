@@ -40,7 +40,7 @@ class Comic(models.Model):
         
 class Photo(models.Model):
     url = models.CharField(max_length=200)
-    cat = models.ForeignKey(Comic, on_delete=models.CASCADE)
+    comic = models.ForeignKey(Comic, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Photo for comic_id: {self.comic_id} @{self.url}"
